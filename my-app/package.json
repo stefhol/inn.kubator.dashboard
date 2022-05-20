@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@azure/identity": "^2.0.4",
+    "@azure/msal-browser": "^2.24.0",
+    "@microsoft/microsoft-graph-client": "^3.0.2",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
     "@testing-library/user-event": "^13.5.0",
