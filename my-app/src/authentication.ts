@@ -3,19 +3,20 @@ import { Client } from "@microsoft/microsoft-graph-client";
 import { PublicClientApplication, InteractionType, AccountInfo } from "@azure/msal-browser";
 
 import { AuthCodeMSALBrowserAuthenticationProvider, AuthCodeMSALBrowserAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/authProviders/authCodeMsalBrowser";
-interface User {
+export interface User {
     displayName: string
-
     id: string
-
     mail: string
-
     userPrincipalName: string
+    preferredLanguage: string
+    jobTitle: string
+    businessPhones: string[]
+    officeLocation: string | null
 }
-interface Presence {
-    activity: "Offline"
-    availability: "Offline"
-    id: "e59af487-68cb-411d-bf97-707a6a815130"
+export interface Presence {
+    activity: string
+    availability: string
+    id: string
 }
 interface ReturnValue<T> {
     value: T[]
@@ -54,7 +55,7 @@ export async function getAccounts() {
     console.log(currentAccounts);
 }
 
-export async function doAuth() {
+export async function getData() {
     // Login
     try {
         // Use MSAL to login
@@ -80,7 +81,7 @@ export async function doAuth() {
             let presence = await getPresnce(allUsers?.value.map(val => val.id))
             if (presence != null) {
                 return allUsers.value.map(f => {
-                    return { ...f, ...presence?.value.find(pre => pre.id === f.id) }
+                    return { ...f, ...presence?.value.find(pre => pre.id === f.id) } as unknown as Presence & User
                 })
             }
 
@@ -101,7 +102,6 @@ async function getAllUser() {
     return graphClient
         .api('/users')
         // Only get the fields used by the app
-        .select('id,displayName,mail,userPrincipalName')
         .top(650)
         .get() as unknown as ReturnValue<User> | null;
 }

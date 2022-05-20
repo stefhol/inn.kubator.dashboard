@@ -1,24 +1,45 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-
+import { Component } from './Component';
+import { getData, getAccounts, Presence, User } from './authentication';
+import { UserScreen } from './UserScreen';
+import DefaultProfilePicture from "./img/blank-profile-picture.webp"
+import { OfficeLocation } from './OfficeLocation';
+function onlyUnique(value: any, index: number, self: any[]) {
+  return self.indexOf(value) === index;
+}
 function App() {
+  const [userData, setUserData] = React.useState([] as Array<Presence & User>);
+  React.useEffect(() => {
+    getData().then(res => {
+      console.log(res);
+
+      if (res) { setUserData(res) }
+    })
+    return () => {
+
+    }
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+
+      <main>
+        {
+          userData.map(res => res.officeLocation).filter(onlyUnique).map((val, index) => <>
+            <OfficeLocation title={val} key={index}>
+              <section className="cards">
+                {
+                  userData.filter(user => user.officeLocation == val).map(val => <UserScreen key={val.id} name={val.displayName} srcImage={DefaultProfilePicture} mail={val.mail} availability={val.availability} businessPhones={val.businessPhones} jobTitle={val.jobTitle} preferredLanguage={val.preferredLanguage} />)
+                }
+              </section>
+            </OfficeLocation>
+          </>)
+        }
+
+      </main>
+
+
     </div>
   );
 }
