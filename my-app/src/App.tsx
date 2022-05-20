@@ -1,7 +1,5 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { Component } from './Component';
 import { getData, getAccounts, Presence, User } from './authentication';
 import { UserScreen } from './UserScreen';
 import DefaultProfilePicture from "./img/blank-profile-picture.webp"
