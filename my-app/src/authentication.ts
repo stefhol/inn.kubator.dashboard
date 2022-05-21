@@ -12,6 +12,7 @@ export interface User {
     jobTitle: string
     businessPhones: string[]
     officeLocation: string | null
+    isLiscenced: boolean
 }
 export interface Presence {
     activity: string
@@ -54,20 +55,22 @@ export async function getAccounts() {
     const currentAccounts = msalInstance.getAllAccounts();
     console.log(currentAccounts);
 }
+export const login = async () => {
+    // Use MSAL to login
+    //@ts-ignore
+    const authResult = await msalInstance.loginPopup({});
+    console.log('id_token acquired at: ' + new Date().toString());
 
+    msalInstance.setActiveAccount(authResult.account);
+    console.log(authResult);
+
+    // Initialize the Graph client
+    initializeGraphClient(msalInstance, authResult.account as msal.AccountInfo);
+
+}
 export async function getData() {
     // Login
     try {
-        // Use MSAL to login
-        //@ts-ignore
-        const authResult = await msalInstance.loginPopup({});
-        console.log('id_token acquired at: ' + new Date().toString());
-
-        msalInstance.setActiveAccount(authResult.account);
-        console.log(authResult);
-
-        // Initialize the Graph client
-        initializeGraphClient(msalInstance, authResult.account as msal.AccountInfo);
 
         // Get the user's profile from Graph
         getUser().then(res => {
@@ -76,12 +79,15 @@ export async function getData() {
             console.log("succes")
         }).catch(err => console.error(err));
         let allUsers = await getAllUser();
-        console.log(allUsers)
         if (allUsers != null) {
             let presence = await getPresnce(allUsers?.value.map(val => val.id))
+            let licenseUser = await getLiscencedUsers();
             if (presence != null) {
                 return allUsers.value.map(f => {
-                    return { ...f, ...presence?.value.find(pre => pre.id === f.id) } as unknown as Presence & User
+                    return {
+                        ...f, ...presence?.value.find(pre => pre.id === f.id),
+                        isLiscenced: licenseUser.value.find((li) => li.id == f.id) != null ? true : false
+                    } as unknown as Presence & User
                 })
             }
 
@@ -111,4 +117,10 @@ async function getPresnce(ids: string[]) {
     };
     return await graphClient.api('/communications/getPresencesByUserId')
         .post(presence) as unknown as ReturnValue<Presence> | null;
+}
+async function getLiscencedUsers() {
+
+    return await graphClient.api('/groups/09fb4455-00b3-434b-91e5-fc9e8a854d66/members')
+        .select('id,userPrincipalName,displayName')
+        .get() as ReturnValue<Partial<User>>;
 }
