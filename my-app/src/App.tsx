@@ -1,13 +1,13 @@
 import React from 'react';
 import './App.css';
-import { getData, getAccounts, Presence, User, login } from './authentication';
+import { getData, getAccounts, Presence, User, login, getListEvents } from './authentication';
 import { UserScreen } from './UserScreen';
 import DefaultProfilePicture from "./img/blank-profile-picture.webp"
 import { OfficeLocation } from './OfficeLocation';
-import { SearchComp } from './SearchComp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import { Button, Input, Menu, MenuItem } from '@mui/material'
+import { Button, Input, Menu, MenuItem, Toolbar } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
+import AppBar from '@mui/material/AppBar';
 function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
@@ -24,17 +24,31 @@ function App() {
   const [filter, setFilter] = React.useState(FilterState.ALL);
   const [inputValue, setInputValue] = React.useState("");
   const cachedData = React.useRef([] as Array<Presence & User>);
+  const [isLoggedIn, setisLoggedIn] = React.useState(false);
   React.useEffect(() => {
-    login().then(() => {
-      getData().then(res => {
-        console.log(res);
+    cachedData.current = []
+    setUserData([])
+    if (isLoggedIn) {
+      login().then(() => {
+        getData().then(res => {
+          console.log(res);
 
-        if (res) {
-          setUserData(res)
-          cachedData.current = res
-        }
+
+          if (res) {
+            setUserData(res)
+            cachedData.current = res
+            
+          }
+        })
+          .catch(() => {
+            setisLoggedIn(false)
+          })
       })
-    })
+    }
+
+  }, [isLoggedIn]);
+  React.useEffect(() => {
+
 
     return () => {
 
@@ -52,79 +66,110 @@ function App() {
   }, [filter, inputValue])
   return (
     <div>
-      <header>
-        <SearchIcon />
-        <Input
-          placeholder="Search…"
-          inputProps={{ 'aria-label': 'search' }}
-          onChange={
-            (e) => {
-              const target = e.target as HTMLInputElement;
-              setInputValue(target.value)
-            }
-          }
-          value={inputValue}
-        />
+      <AppBar position="static" color='transparent' className='appbar'>
+        <Toolbar variant="dense">
 
-        <Button
-          onClick={(e) => {
-            e.preventDefault()
-            getData().then(res => {
-              console.log(res);
-
-              if (res) {
-                setUserData(res)
-                cachedData.current = res
+          <SearchIcon />
+          <Input
+            placeholder="Search…"
+            inputProps={{ 'aria-label': 'search' }}
+            onChange={
+              (e) => {
+                const target = e.target as HTMLInputElement;
+                setInputValue(target.value)
               }
-            })
-          }}
-        >
-          Refresh
-        </Button>
+            }
+            value={inputValue}
+          />
+
+          <Button
+            onClick={(e) => {
+              e.preventDefault()
+              if (isLoggedIn) {
+                getData().then(res => {
+                  console.log(res);
+
+                  if (res) {
+                    setUserData(res)
+                    cachedData.current = res
+                  }
+                })
+              }
+            }}
+          >
+            Refresh
+          </Button>
 
 
-        <Button
-          id="menu-button"
-          aria-haspopup="true"
-          onClick={(ev) => {
-            setOpenMenu(true)
-            setAnchorEl(ev.currentTarget);
-          }}
-          endIcon={<KeyboardArrowDownIcon />}
-        >
-          Filter
-        </Button>
-        <Menu open={openMenu} anchorEl={anchorEl}
-          onClose={(e) => {
-            setAnchorEl(null)
-            setOpenMenu(false)
-          }}
-        >
-          <MenuItem onClick={(e) => {
-            setAnchorEl(null)
-            setOpenMenu(false)
-            setFilter(FilterState.ALL)
-          }}
+          <Button
+            id="menu-button"
+            aria-haspopup="true"
+            onClick={(ev) => {
+              setOpenMenu(true)
+              setAnchorEl(ev.currentTarget);
+            }}
+            endIcon={<KeyboardArrowDownIcon />}
           >
-            All
-          </MenuItem>
-          <MenuItem onClick={(e) => {
-            setAnchorEl(null)
-            setOpenMenu(false)
-            setFilter(FilterState.LICENCED)
-          }}
+            Filter
+          </Button>
+          <Menu open={openMenu} anchorEl={anchorEl}
+            onClose={(e) => {
+              setAnchorEl(null)
+              setOpenMenu(false)
+            }}
           >
-            Licenced
-          </MenuItem>
-        </Menu>
-      </header>
+            <MenuItem key={0} onClick={(e) => {
+              setAnchorEl(null)
+              setOpenMenu(false)
+              setFilter(FilterState.ALL)
+            }}
+            >
+              All
+            </MenuItem>
+            <MenuItem key={1} onClick={(e) => {
+              setAnchorEl(null)
+              setOpenMenu(false)
+              setFilter(FilterState.LICENCED)
+            }}
+            >
+              Licenced
+            </MenuItem>
+          </Menu>
+          {isLoggedIn ?
+            <Button onClick={
+              (e) => {
+                setisLoggedIn(false)
+              }
+            }>
+              Sign-Out
+            </Button> :
+            <Button onClick={
+              (e) => {
+                setisLoggedIn(true)
+              }
+            }>
+              Sign-In
+            </Button>
+          }
+
+        </Toolbar>
+
+      </AppBar>
       <main>
         {
           userData.map(res => res.officeLocation).filter(onlyUnique).map((val, index) => <>
             <OfficeLocation title={val} key={index}>
               <section className="cards">
                 {
-                  userData.filter(user => user.officeLocation == val).map(val => <UserScreen key={val.id} name={val.displayName} srcImage={DefaultProfilePicture} mail={val.mail} availability={val.availability} businessPhones={val.businessPhones} jobTitle={val.jobTitle} preferredLanguage={val.preferredLanguage} />)
+                  userData.filter(user => user.officeLocation == val).map(val =>
+                    <UserScreen key={val.id}
+                      id={val.id}
+                      name={val.displayName}
+                      srcImage={DefaultProfilePicture}
+                      mail={val.mail} availability={val.availability}
+                      businessPhones={val.businessPhones}
+                      jobTitle={val.jobTitle}
+                      preferredLanguage={val.preferredLanguage} />)
                 }
               </section>
             </OfficeLocation>

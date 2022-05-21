@@ -13,7 +13,7 @@ code {
 }
 main{
   margin: auto;
-  width:60rem
+  max-width:60rem
 }
 .cards{
   display: flex;

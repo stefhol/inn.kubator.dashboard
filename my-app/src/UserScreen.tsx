@@ -1,7 +1,10 @@
-import { Avatar, Button, Card, CardActions, CardContent, Chip, Menu, MenuItem, Stack, Typography } from "@mui/material"
+import { Avatar, Button, Card, CardActions, CardContent, Chip, Menu, MenuItem, Modal, Stack, Typography } from "@mui/material"
 import React from "react"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
+import { CalenderView } from "./CalenderView"
+import { isInMeeting, getIsInMeeting } from "./authentication"
 export interface UserScreenProps {
+    id: string
     name: string
     srcImage: string
     mail: string
@@ -11,12 +14,23 @@ export interface UserScreenProps {
     businessPhones: string[]
 }
 export const UserScreen: React.FC<UserScreenProps> = (props) => {
+    const [openModal, setOpenModal] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [openMenuBusinessPhone, setOpenMenuBusinessPhone] = React.useState(false);
+    const [isUserInMeeting, setIsInMeeting] = React.useState(false);
     const handlecloseMenuBusinessPhone = (e: React.MouseEvent) => {
         setAnchorEl(null)
         setOpenMenuBusinessPhone(false)
     }
+    React.useEffect(() => {
+        getIsInMeeting(props.id).then((res) => {
+            setIsInMeeting(isInMeeting(res))
+        }).catch((_) => {
+
+        })
+
+
+    }, [props.id]);
     return (<>
 
         <Card sx={{ width: 300 }} className="card">
@@ -29,9 +43,10 @@ export const UserScreen: React.FC<UserScreenProps> = (props) => {
                         </Typography>
                     </Stack>
                     <Stack spacing={0.2} alignSelf={"end"}>
-                        {props.availability && <Chip label={props.availability} />}
-                        {props.preferredLanguage && <Chip label={props.preferredLanguage} />}
-                        {props.jobTitle && <Chip label={props.jobTitle} />}
+                        {props.availability && <Chip label={props.availability} className={`${props.availability.toLowerCase()} chip fix-size-70`} />}
+                        {props.preferredLanguage && <Chip label={props.preferredLanguage} className={`chip`} />}
+                        {props.jobTitle && <Chip label={props.jobTitle} className={`chip`} />}
+                        {isUserInMeeting && <Chip label={"Is in Meeting"} className={`chip`} />}
                     </Stack>
 
                 </Stack>
@@ -54,13 +69,29 @@ export const UserScreen: React.FC<UserScreenProps> = (props) => {
                             onClose={handlecloseMenuBusinessPhone}
                         >
 
-                            {props.businessPhones.map(el => <MenuItem
+                        {props.businessPhones.map((el, i) => <MenuItem key={i}
                                 href={`tel:${el}`}
                                 onClick={handlecloseMenuBusinessPhone}>{el}
                             </MenuItem>)}
-                        </Menu>
+                    </Menu>
+
                     </>
                 }
+                <Button onClick={(e) => {
+                    e.preventDefault()
+                    setOpenModal(true)
+                }
+                }>
+                    Calender
+                </Button>
+                <Modal
+                    open={openModal}
+                    onClose={() => {
+                        setOpenModal(false)
+                    }}
+                >
+                    <CalenderView id={props.id} />
+                </Modal>
             </CardActions>
         </Card>
     </>)

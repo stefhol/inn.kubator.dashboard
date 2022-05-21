@@ -3,6 +3,8 @@ import { Client } from "@microsoft/microsoft-graph-client";
 import { PublicClientApplication, InteractionType, AccountInfo } from "@azure/msal-browser";
 
 import { AuthCodeMSALBrowserAuthenticationProvider, AuthCodeMSALBrowserAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/authProviders/authCodeMsalBrowser";
+import { CalenderEventValue } from "./CalenderEvent";
+import { getUnixTime } from "date-fns";
 export interface User {
     displayName: string
     id: string
@@ -37,7 +39,8 @@ function initializeGraphClient(msalClient: msal.PublicClientApplication, account
         scopes: ["Mail.Send",
             "User.Read",
             "User.Read.All",
-            "Presence.Read.All"
+            "Presence.Read.All",
+            "Calendars.Read",
         ],
         account: account
     });
@@ -123,4 +126,29 @@ async function getLiscencedUsers() {
     return await graphClient.api('/groups/09fb4455-00b3-434b-91e5-fc9e8a854d66/members')
         .select('id,userPrincipalName,displayName')
         .get() as ReturnValue<Partial<User>>;
+}
+export const getListEvents = async (id: string) => {
+    return await graphClient
+        .api(`/users/${id}/events`)
+        .get() as ReturnValue<CalenderEventValue>;
+}
+export const getIsInMeeting = async (id: string) => {
+    return await graphClient
+        .api(`/users/${id}/events`)
+        .select('id,start,end')
+        .get() as ReturnValue<CalenderEventValue>;
+}
+
+export const isInMeeting = (input: ReturnValue<CalenderEventValue>): boolean => {
+    let isInMeeting = false;
+    let rowArray = input.value;
+    rowArray.forEach(row => {
+        if (getUnixTime(new Date(row.start.dateTime)) < getUnixTime(new Date()) && getUnixTime(new Date()) < getUnixTime(new Date(row.end.dateTime))) {
+            isInMeeting = true
+        }
+    })
+    return isInMeeting
+
+
+
 }

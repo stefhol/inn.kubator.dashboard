@@ -36,3 +36,18 @@
     transform: rotate(360deg);
   }
 }
+.chip{
+  font-size: small;
+}
+.fix-size-70{
+  width: 70px;
+}
+.active{
+      background: lightblue !important;
+}
+.offline{
+  background:lightcoral !important;
+}
+.available{
+  background: #40db64 !important;
+}
