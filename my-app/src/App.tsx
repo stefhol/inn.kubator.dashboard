@@ -5,7 +5,7 @@ import { Presence } from "./interfaces/Presence";
 import { User } from "./interfaces/User";
 import { UserScreen } from './Components/UserScreen';
 import DefaultProfilePicture from "./img/blank-profile-picture.webp"
-import { OfficeLocation } from './OfficeLocation';
+import { OfficeLocation } from './Components/OfficeLocation';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { Button, Input, Menu, MenuItem, Toolbar } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
