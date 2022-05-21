@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
 import React from "react";
-import { getListEvents } from "./authentication";
-import { CalenderEventValue } from "./CalenderEvent";
-import { format, formatDistance, formatDuration, formatRelative, fromUnixTime, getUnixTime, intervalToDuration, subDays } from 'date-fns'
+import { getListEvents } from "../authentication";
+import { CalenderEventValue } from "../interfaces/CalenderEvent";
+import { format, formatDuration, getUnixTime, intervalToDuration } from 'date-fns'
 export interface CalenderViewProps {
     id: string
 }
@@ -44,7 +44,6 @@ export const CalenderView: React.FC<CalenderViewProps> = (props) => {
                                     <TableCell component="th" scope="row">
                                         {row.subject}
                                     </TableCell>
-
                                     <TableCell component="th" scope="row">
                                         {format(new Date(row.start.dateTime), "dd.MM-yyyy hh:mm")}
                                     </TableCell><TableCell component="th" scope="row">
@@ -54,11 +53,7 @@ export const CalenderView: React.FC<CalenderViewProps> = (props) => {
                                             start: new Date(row.start.dateTime),
                                             end: new Date(row.end.dateTime)
                                         }))}
-
                                     </TableCell>
-
-
-
                                 </TableRow>
                             ))}
                         </TableBody>

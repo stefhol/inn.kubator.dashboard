@@ -1,29 +1,12 @@
 import * as msal from "@azure/msal-browser";
 import { Client } from "@microsoft/microsoft-graph-client";
-import { PublicClientApplication, InteractionType, AccountInfo } from "@azure/msal-browser";
 
-import { AuthCodeMSALBrowserAuthenticationProvider, AuthCodeMSALBrowserAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/authProviders/authCodeMsalBrowser";
-import { CalenderEventValue } from "./CalenderEvent";
+import { AuthCodeMSALBrowserAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/authCodeMsalBrowser";
+import { CalenderEventValue } from "./interfaces/CalenderEvent";
 import { getUnixTime } from "date-fns";
-export interface User {
-    displayName: string
-    id: string
-    mail: string
-    userPrincipalName: string
-    preferredLanguage: string
-    jobTitle: string
-    businessPhones: string[]
-    officeLocation: string | null
-    isLiscenced: boolean
-}
-export interface Presence {
-    activity: string
-    availability: string
-    id: string
-}
-interface ReturnValue<T> {
-    value: T[]
-}
+import { User } from "./interfaces/User";
+import { Presence } from "./interfaces/Presence";
+import { ReturnValue } from "./interfaces/ReturnValue";
 const msalConfig = {
     auth: {
         clientId: '3666a5de-8a20-46d6-af21-71c2cb0627b2'
@@ -77,16 +60,20 @@ export async function getData() {
     try {
 
         // Get the user's profile from Graph
-        getUser().then(res => {
+        getMe().then(res => {
             // Save the profile in session
             sessionStorage.setItem('graphUser', JSON.stringify(res));
             console.log("succes")
         }).catch(err => console.error(err));
+        //get user
         let allUsers = await getAllUser();
         if (allUsers != null) {
+            //get presence (teams status)
             let presence = await getPresnce(allUsers?.value.map(val => val.id))
+            //get liscence status (user in group licence)
             let licenseUser = await getLiscencedUsers();
             if (presence != null) {
+                //merge all in one object
                 return allUsers.value.map(f => {
                     return {
                         ...f, ...presence?.value.find(pre => pre.id === f.id),
@@ -94,14 +81,13 @@ export async function getData() {
                     } as unknown as Presence & User
                 })
             }
-
         }
     } catch (error) {
         console.log(error);
     }
 
 }
-async function getUser() {
+async function getMe() {
     return graphClient
         .api('/me')
         // Only get the fields used by the app

@@ -2,8 +2,8 @@ import { Avatar, Button, Card, CardActions, CardContent, Chip, Menu, MenuItem, M
 import React from "react"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import { CalenderView } from "./CalenderView"
-import { isInMeeting, getIsInMeeting, getPb } from "./authentication"
-import { BadgeContext } from "./App"
+import { isInMeeting, getIsInMeeting, getPb } from "../authentication"
+import { BadgeContext } from "../App"
 export interface UserScreenProps {
     id: string
     name: string
@@ -39,8 +39,10 @@ export const UserScreen: React.FC<UserScreenProps> = (props) => {
         })
     }, [props.id]);
     const { value } = React.useContext(BadgeContext);
+    //feature tag sorting not implemented
     const [isVisible, setIsVisible] = React.useState(true);
     const [tags, setTags] = React.useState([] as any[]);
+
     React.useEffect(() => {
         setTags(_ => {
             let arr = [props.availability, props.jobTitle, props.preferredLanguage]
@@ -50,6 +52,7 @@ export const UserScreen: React.FC<UserScreenProps> = (props) => {
             return arr
         })
     }, []);
+    //
     React.useEffect(() => {
         setIsVisible(true)
         if (value.length > 0) {
@@ -99,11 +102,11 @@ export const UserScreen: React.FC<UserScreenProps> = (props) => {
                             onClose={handlecloseMenuBusinessPhone}
                         >
 
-                        {props.businessPhones.map((el, i) => <MenuItem key={i}
+                            {props.businessPhones.map((el, i) => <MenuItem key={i}
                                 href={`tel:${el}`}
                                 onClick={handlecloseMenuBusinessPhone}>{el}
                             </MenuItem>)}
-                    </Menu>
+                        </Menu>
 
                     </>
                 }
@@ -112,7 +115,7 @@ export const UserScreen: React.FC<UserScreenProps> = (props) => {
                     setOpenModal(true)
                 }
                 }>
-                    Calender
+                    Calendar
                 </Button>
                 <Modal
                     open={openModal}

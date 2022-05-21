@@ -1,7 +1,9 @@
 import React from 'react';
 import './App.css';
-import { getData, getAccounts, Presence, User, login, getListEvents } from './authentication';
-import { UserScreen } from './UserScreen';
+import { getData, login } from './authentication';
+import { Presence } from "./interfaces/Presence";
+import { User } from "./interfaces/User";
+import { UserScreen } from './Components/UserScreen';
 import DefaultProfilePicture from "./img/blank-profile-picture.webp"
 import { OfficeLocation } from './OfficeLocation';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
@@ -15,6 +17,7 @@ function onlyUnique(value: any, index: number, self: any[]) {
 enum FilterState {
   ALL, LICENCED
 }
+//not implemented
 export const BadgeContext = React.createContext({
   value: [] as string[],
   setValue: (val: string[]) => { }
@@ -28,6 +31,7 @@ function App() {
   const [inputValue, setInputValue] = React.useState("");
   const cachedData = React.useRef([] as Array<Presence & User>);
   const [isLoggedIn, setisLoggedIn] = React.useState(false);
+  //not implemented
   const [badgeState, setBadgeState] = React.useState([] as string[]);
   React.useEffect(() => {
     cachedData.current = []
@@ -59,6 +63,7 @@ function App() {
     }
   }, []);
   React.useEffect(() => {
+    //filter logic toolbar
     setUserData(cachedData.current.filter((item) => {
       return (filter == FilterState.ALL || item.isLiscenced)
         && (
