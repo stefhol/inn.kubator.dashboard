@@ -14,186 +14,136 @@ function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
-enum FilterState {
-  ALL, LICENCED
-}
-//not implemented
-export const BadgeContext = React.createContext({
-  value: [] as string[],
-  setValue: (val: string[]) => { }
-});
-function App() {
+import Button from '@mui/material/Button';
 
-  const [userData, setUserData] = React.useState([] as Array<Presence & User>);
-  const [openMenu, setOpenMenu] = React.useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null as unknown as Element | null);
-  const [filter, setFilter] = React.useState(FilterState.ALL);
-  const [inputValue, setInputValue] = React.useState("");
-  const cachedData = React.useRef([] as Array<Presence & User>);
-  const [isLoggedIn, setisLoggedIn] = React.useState(false);
-  //not implemented
-  const [badgeState, setBadgeState] = React.useState([] as string[]);
-  React.useEffect(() => {
-    cachedData.current = []
-    setUserData([])
-    if (isLoggedIn) {
-      login().then(() => {
-        getData().then(res => {
-          console.log(res);
+import { styled, alpha } from '@mui/material/styles';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import InputBase from '@mui/material/InputBase';
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
 
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+import { Avatar } from '@mui/material';
 
-          if (res) {
-            setUserData(res)
-            cachedData.current = res
-            
-          }
-        })
-          .catch(() => {
-            setisLoggedIn(false)
-          })
-      })
-    }
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(2),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
 
-  }, [isLoggedIn]);
-  React.useEffect(() => {
-
-
-    return () => {
-
-    }
-  }, []);
-  React.useEffect(() => {
-    //filter logic toolbar
-    setUserData(cachedData.current.filter((item) => {
-      return (filter == FilterState.ALL || item.isLiscenced)
-        && (
-          item.displayName.toLowerCase().includes(inputValue.toLowerCase()) ||
-          item.mail && item.mail.toLowerCase().includes(inputValue.toLowerCase())
-        )
-    }
-    ))
-  }, [filter, inputValue])
+function UserGrid() {
+  var benutzer = Benutzer();
   return (
-    <BadgeContext.Provider value={{ setValue: (val) => setBadgeState(val), value: badgeState }}>
-      <div>
-        <AppBar position="static" color='transparent' className='appbar'>
-          <Toolbar variant="dense" style={{
-            display: "flex",
-            justifyContent: "center"
-          }}>
+    <Box sx={{ flexGrow: 1 }}>
+      <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+        {benutzer.map((_, index) => (
+          <Grid item xs={4} sm={4} md={4} key={index}>
+            <Item>{benutzer[index]}</Item>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+}
 
-            <SearchIcon />
-            <Input
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginLeft: 0,
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    marginLeft: theme.spacing(1),
+    width: 'auto',
+  },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: 'inherit',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: '12ch',
+      '&:focus': {
+        width: '20ch',
+      },
+    },
+  },
+}));
+
+function SearchAppBar() {
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+          >
+            MUI
+          </Typography>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
-              onChange={
-                (e) => {
-                  const target = e.target as HTMLInputElement;
-                  setInputValue(target.value)
-                }
-              }
-              value={inputValue}
             />
+          </Search>
+        </Toolbar>
+      </AppBar>
+    </Box>
+  );
+}
 
-            <Button
-              onClick={(e) => {
-                e.preventDefault()
-                if (isLoggedIn) {
-                  getData().then(res => {
-                    console.log(res);
+function Benutzer(){
+  var benutzerArray = [<><Avatar>a</Avatar>name</>,<Avatar>b</Avatar>,<Avatar>c</Avatar>,<Avatar>d</Avatar>,<Avatar>e</Avatar>,<Avatar>f</Avatar>]
+  return(benutzerArray);
+}
 
-                    if (res) {
-                      setUserData(res)
-                      cachedData.current = res
-                    }
-                  })
-                }
-              }}
-            >
-              Refresh
-            </Button>
-
-
-            <Button
-              id="menu-button"
-              aria-haspopup="true"
-              onClick={(ev) => {
-                setOpenMenu(true)
-                setAnchorEl(ev.currentTarget);
-              }}
-              endIcon={<KeyboardArrowDownIcon />}
-            >
-              Filter
-            </Button>
-            <Menu open={openMenu} anchorEl={anchorEl}
-              onClose={(e) => {
-                setAnchorEl(null)
-                setOpenMenu(false)
-              }}
-            >
-              <MenuItem key={0} onClick={(e) => {
-                setAnchorEl(null)
-                setOpenMenu(false)
-                setFilter(FilterState.ALL)
-              }}
-              >
-                All
-              </MenuItem>
-              <MenuItem key={1} onClick={(e) => {
-                setAnchorEl(null)
-                setOpenMenu(false)
-                setFilter(FilterState.LICENCED)
-              }}
-              >
-                Licenced
-              </MenuItem>
-            </Menu>
-            {isLoggedIn ?
-              <Button onClick={
-                (e) => {
-                  setisLoggedIn(false)
-                }
-              }>
-                Sign-Out
-              </Button> :
-              <Button onClick={
-                (e) => {
-                  setisLoggedIn(true)
-                }
-              }>
-                Sign-In
-              </Button>
-            }
-
-          </Toolbar>
-
-        </AppBar>
-        <main>
-          {
-            userData.map(res => res.officeLocation).filter(onlyUnique).map((val, index) => <>
-              <OfficeLocation title={val} key={index}>
-                <section className="cards">
-                  {
-                    userData.filter(user => user.officeLocation == val).map(val =>
-                      <UserScreen key={val.id}
-                        id={val.id}
-                        name={val.displayName}
-                        srcImage={DefaultProfilePicture}
-                        mail={val.mail} availability={val.availability}
-                        businessPhones={val.businessPhones}
-                        jobTitle={val.jobTitle}
-                        preferredLanguage={val.preferredLanguage} />)
-                  }
-                </section>
-              </OfficeLocation>
-            </>)
-          }
-
-        </main>
-
-
-      </div>
-    </BadgeContext.Provider>
+function App() {
+  return ( 
+    <>
+    <SearchAppBar/>
+    <UserGrid/>
+    <Button variant="contained">Contained</Button>
+    </>
   );
 }
 
