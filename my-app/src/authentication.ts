@@ -41,6 +41,7 @@ function initializeGraphClient(msalClient: msal.PublicClientApplication, account
             "User.Read.All",
             "Presence.Read.All",
             "Calendars.Read",
+            "Calendars.Read.Shared"
         ],
         account: account
     });
@@ -129,13 +130,13 @@ async function getLiscencedUsers() {
 }
 export const getListEvents = async (id: string) => {
     return await graphClient
-        .api(`/users/${id}/events`)
+        .api(`/users/${id}/calendar/events`)
         .get() as ReturnValue<CalenderEventValue>;
 }
 export const getIsInMeeting = async (id: string) => {
     return await graphClient
-        .api(`/users/${id}/events`)
-        .select('id,start,end')
+        .api(`/users/${id}/calendar/events`)
+        // .select('id,start,end')
         .get() as ReturnValue<CalenderEventValue>;
 }
 
@@ -148,7 +149,9 @@ export const isInMeeting = (input: ReturnValue<CalenderEventValue>): boolean => 
         }
     })
     return isInMeeting
-
-
-
+}
+export const getPb = async (id: string) => {
+    return await graphClient
+        .api(`/users/${id}/photo/$value`)
+        .get() as any;
 }

@@ -51,3 +51,9 @@
 .available{
   background: #40db64 !important;
 }
+.away{
+  background: yellow!important;
+}
+.busy{
+  background: yellow!important;
+}
