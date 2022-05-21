@@ -3,6 +3,7 @@ import React from "react"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import { CalenderView } from "./CalenderView"
 import { isInMeeting, getIsInMeeting, getPb } from "./authentication"
+import { BadgeContext } from "./App"
 export interface UserScreenProps {
     id: string
     name: string
@@ -22,7 +23,7 @@ export const UserScreen: React.FC<UserScreenProps> = (props) => {
 
     React.useEffect(() => {
         getPb(props.id).then(res => {
-            setProfilePicture(res)
+            setProfilePicture(window.URL.createObjectURL(res))
         })
 
     }, [props.id]);
@@ -36,13 +37,33 @@ export const UserScreen: React.FC<UserScreenProps> = (props) => {
         }).catch((_) => {
 
         })
-
-
-
     }, [props.id]);
+    const { value } = React.useContext(BadgeContext);
+    const [isVisible, setIsVisible] = React.useState(true);
+    const [tags, setTags] = React.useState([] as any[]);
+    React.useEffect(() => {
+        setTags(_ => {
+            let arr = [props.availability, props.jobTitle, props.preferredLanguage]
+            if (isUserInMeeting) {
+                arr.push("In Meeting")
+            }
+            return arr
+        })
+    }, []);
+    React.useEffect(() => {
+        setIsVisible(true)
+        if (value.length > 0) {
+            value.forEach(el => {
+                if (!tags.includes(el)) {
+                    setIsVisible(false)
+                }
+            })
+        }
+    }, [value]);
     return (<>
 
-        <Card sx={{ width: 300 }} className="card">
+        <Card sx={{ width: 300 }} className={`card ${isVisible ? "" : "invisible"}`}
+        >
             <CardContent>
                 <Stack direction="row" spacing={1} justifyContent={"space-around"}>
                     <Stack alignItems={"center"}>

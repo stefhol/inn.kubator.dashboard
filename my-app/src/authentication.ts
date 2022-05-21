@@ -153,5 +153,5 @@ export const isInMeeting = (input: ReturnValue<CalenderEventValue>): boolean => 
 export const getPb = async (id: string) => {
     return await graphClient
         .api(`/users/${id}/photo/$value`)
-        .get() as any;
+        .get() as Blob;
 }
